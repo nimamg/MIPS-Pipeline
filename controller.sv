@@ -1,6 +1,6 @@
 `timescale 1ns / 1ns
 
-module controller(input clk, equal, input [31:0] instruction, output reg [1:0] pcSrc, output reg regDst, regWrite, memWrite, memRead, aluSel, memToReg, IFFlush, output reg [2:0] aluOP);
+module controller(input equal, input [31:0] instruction, output reg [1:0] pcSrc, output reg regDst, regWrite, memWrite, memRead, aluSel, memToReg, IFFlush, output reg [2:0] aluOP);
   wire[5:0] opcode, func;
   assign func = instruction[5:0];
   assign opcode = instruction[31:26];
