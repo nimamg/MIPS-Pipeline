@@ -23,6 +23,7 @@ module controller(input equal, input [31:0] instruction, output reg [1:0] pcSrc,
       6'b000100: begin // branchEq
         if (equal) begin
           pcSrc = 1;
+          IFFlush = 1;
         end
         else begin
           pcSrc = 0;
@@ -31,6 +32,7 @@ module controller(input equal, input [31:0] instruction, output reg [1:0] pcSrc,
       6'b000101: begin // branchNotEq
         if (~equal) begin
             pcsel = 1;
+            IFFlush = 1;
         end
         else begin
           pcsel = 0;
