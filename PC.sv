@@ -1,12 +1,12 @@
 `timescale 1ns/1ns
 
-module PC (input clk, rst, pcWrite input [9:0] in, output [9:0] out);
+module PC (input clk, rst, pcWrite input [9:0] pcIn, output [9:0] pcOut);
     always @(posedge clk, posedge rst) begin
         if (rst)
-            out <= 0;
+            pcOut <= 0;
         else if (pcWrite)
-            out <= in;
+            pcOut <= pcIn;
         else
-            out <= out;
+            pcOut <= pcOut;
     end
 endmodule
