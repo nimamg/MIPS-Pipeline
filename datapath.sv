@@ -2,7 +2,10 @@
 
 module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, ifFlush, ifidWrite, stall,
     controlSel, regWrite, regDst, memWrite, memRead, aluSel, memToReg,
-    input [2:0] aluOp, output equal);
+    input [2:0] aluOp, output equalToControl, output [4:0] idRsToHazard, idRtToHazard,
+    exRtToFrwrd_Hazard, exRsToFrwrd, memRdToFrwrd, wbRdToFrwrd, output exMemReadToHazard,
+    memRegWriteToFrwrd, wbRegWriteToFrwrd);
+
     // IF wires
     wire [31:0] pcOut, pcIn, IncPcOut, jmpAdr, branchAdr, instruction;
 
@@ -33,7 +36,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     regFile registerFile (Rs, Rt, wbRdIn, wbRegWriteIn, clk, rst, regWriteData, regData1, regData2);
     assign {regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp} = (controlSel == 0) ? 8'b0
      : {regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp}; // Control Signal mux
-     assign equal = (regData1 == regData2) ? 1'b1 : 1'b0; // branch comparator
+     assign equalToControl = (regData1 == regData2) ? 1'b1 : 1'b0; // branch comparator
      // ID stage -- finished
 
 
@@ -85,5 +88,17 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // WB stage
     assign regWriteData = (wbMemToRegIn == 0) ? wbAluResIn : wbMemDataIn;
     //WB stage -- finished
+
+    // output control signals
+    assign idRsToHazard = Rs;
+    assign idRtToHazard = Rt;
+    assign exRtToFrwrd_Hazard = exRtIn;
+    assign exRsToFrwrd = exRsIn;
+    assign memRdToFrwrd = memRdIn;
+    assign wbRdToFrwrd = wbRdIn;
+    assign exMemReadToHazard = exMemReadIn;
+    assign memRegWriteToFrwrd = memRegWriteIn;
+    assign wbRegWriteToFrwrd = wbRegWriteIn;
+    // output control signals --finished
 
 endmodule
