@@ -1,6 +1,6 @@
 `timescale 1ns/1ns
 
-module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, input [31:0] writeData,
+module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, clk, rst, input [31:0] writeData,
     output reg [31:0] readData1, readData2);
 
     reg [31:0] registers [0:31];
