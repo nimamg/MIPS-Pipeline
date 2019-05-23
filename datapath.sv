@@ -63,10 +63,14 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     memMemToRegIn, memAluResIn, memDataIn, memRdIn);
 
     // MEM wires
-    wire [31:0] memAluResIn, memDataIn;
+    wire [31:0] memAluResIn, memDataIn, memDataOut;
     wire [4:0] memRdIn;
     wire memRegWriteIn, memMemWriteIn, memMemReadIn, memMemToRegIn;
     //MEM wires
+
+    //MEM stage
+    DataMemory datamem (clk, rst, memMemWriteIn, memMemReadIn,memDataIn, memAluResIn, memDataOut);
+    //MEM stage -- finished
 
     
 endmodule
