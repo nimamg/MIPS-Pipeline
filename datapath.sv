@@ -55,6 +55,18 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb;
     assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb;
     assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn;
-    ALU alu (aluInA, aluInB, exAluOpIn, aluResult)
+    ALU alu (aluInA, aluInB, exAluOpIn, aluResult);
+    //EX stage -- finished
 
+    exmemReg stage3Reg (clk, rst, aluResult, aluBetweenB, exRdOut, exRegWriteIn,
+    exMemWriteIn, exMemReadIn, exMemToRegIn, memRegWriteIn, memMemWriteIn, memMemReadIn,
+    memMemToRegIn, memAluResIn, memDataIn, memRdIn);
+
+    // MEM wires
+    wire [31:0] memAluResIn, memDataIn;
+    wire [4:0] memRdIn;
+    wire memRegWriteIn, memMemWriteIn, memMemReadIn, memMemToRegIn;
+    //MEM wires
+
+    
 endmodule
