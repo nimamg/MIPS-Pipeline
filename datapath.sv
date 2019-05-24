@@ -43,7 +43,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
      idexReg stage2Reg (clk, rst, regData1, regData2, Rs, Rt, Rd, MemoryOffset,
         regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp, exDataIn1,
         exDataIn2, exRsIn, exRtIn, exRdIn, exOffsetIn, exAluOpIn, exRegWriteIn, exRegDstIn,
-        exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn);
+        exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn); // ID/EX Reg
 
     // EX wires
     wire [31:0] exDataIn1, exDataIn2, forwardedFromMem, forwardedFromWb, aluInA, aluInB, aluBetweenB, aluResult;
@@ -54,22 +54,22 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // EX wires -- finished
 
     // EX stage
-    assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn;
-    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb;
-    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb;
-    assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn;
+    assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn; // Rd output of ex stage
+    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb; // ALU A input / Forward selector
+    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb; // ALU B / forward selector
+    assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn; // ALU B input / Data and offset selector
     ALU alu (aluInA, aluInB, exAluOpIn, aluResult);
     // EX stage -- finished
 
     exmemReg stage3Reg (clk, rst, aluResult, aluBetweenB, exRdOut, exRegWriteIn,
     exMemWriteIn, exMemReadIn, exMemToRegIn, memRegWriteIn, memMemWriteIn, memMemReadIn,
-    memMemToRegIn, memAluResIn, memDataIn, memRdIn);
+    memMemToRegIn, memAluResIn, memDataIn, memRdIn); // EX/MEM reg
 
     // MEM wires
     wire [31:0] memAluResIn, memDataIn, memDataOut;
     wire [4:0] memRdIn;
     wire memRegWriteIn, memMemWriteIn, memMemReadIn, memMemToRegIn;
-    // MEM wires
+    // MEM wires -- finished
 
     // MEM stage
     DataMemory datamem (clk, rst, memMemWriteIn, memMemReadIn,memDataIn, memAluResIn, memDataOut);
@@ -77,7 +77,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
 
     memwbReg stage4Reg (clk, rst, memDataOut, memAluResIn, memRdIn,
         memMemToRegIn, memRegWriteIn, wbMemToRegIn, wbRegWriteIn,
-        wbMemDataIn, wbAluResIn, wbRdIn);
+        wbMemDataIn, wbAluResIn, wbRdIn); // MEM/WB reg
 
     // WB wires
     wire wbMemToRegIn, wbRegWriteIn;
@@ -86,19 +86,19 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // WB wires -- finished
 
     // WB stage
-    assign regWriteData = (wbMemToRegIn == 0) ? wbAluResIn : wbMemDataIn;
+    assign regWriteData = (wbMemToRegIn == 0) ? wbAluResIn : wbMemDataIn; // Register write data selector
     //WB stage -- finished
 
     // output control signals
-    assign idRsToHazard = Rs;
-    assign idRtToHazard = Rt;
-    assign exRtToFrwrd_Hazard = exRtIn;
-    assign exRsToFrwrd = exRsIn;
-    assign memRdToFrwrd = memRdIn;
-    assign wbRdToFrwrd = wbRdIn;
-    assign exMemReadToHazard = exMemReadIn;
-    assign memRegWriteToFrwrd = memRegWriteIn;
-    assign wbRegWriteToFrwrd = wbRegWriteIn;
+    assign idRsToHazard = Rs; // ID stage Rs register -> hazard unit
+    assign idRtToHazard = Rt; // ID stage Rt register -> hazard unit
+    assign exRtToFrwrd_Hazard = exRtIn; // EX stage Rt register -> hazard unit - forwarding unit
+    assign exRsToFrwrd = exRsIn; // EX stage Rs register -> forwarding unit
+    assign memRdToFrwrd = memRdIn; // MEM stage Rd (destination) register -> forwarding unit
+    assign wbRdToFrwrd = wbRdIn; // WB stage Rd (destination) register -> forwarding unit
+    assign exMemReadToHazard = exMemReadIn; // EX stage MemRead signal -> hazard unit
+    assign memRegWriteToFrwrd = memRegWriteIn; // MEM stage RegWrite signal -> forwarding unit
+    assign wbRegWriteToFrwrd = wbRegWriteIn; // WB stage RegWrite signal -> forwarding unit
     // output control signals --finished
 
 endmodule
