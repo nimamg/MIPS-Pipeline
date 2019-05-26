@@ -1,8 +1,8 @@
 `timescale 1ns / 1ns
 
 module memwbReg (input clk, rst, input [31:0] memwbMemDataIn, memwbAluDataIn, input [4:0] memwbRdIn,
-    input memwbMemToRegIn, memwbRegWriteIn, output memwbMemToRegOut, memwbRegWriteOut
-    output [31:0] memwbMemDataOut, memwbAluDataOut, output [4:0] memwbRdOut);
+    input memwbMemToRegIn, memwbRegWriteIn, output reg memwbMemToRegOut, memwbRegWriteOut,
+    output reg [31:0] memwbMemDataOut, memwbAluDataOut, output reg [4:0] memwbRdOut);
     always @(posedge clk, posedge rst) begin
         if (rst) begin
             memwbRegWriteOut = 0;
