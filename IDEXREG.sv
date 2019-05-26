@@ -3,8 +3,8 @@
 module idexReg (input clk, rst, input [31:0] idexRegData1, idexRegData2,
     input [4:0] idexRs, idexRt, idexRd, input [15:0] idexOffset,
     input idexRegWrite, idexRegDst, idexMemWrite, idexMemRead, idexAluSel,
-    idexMemToReg, input [2:0] idexAluOp, output reg [31:0] idexDataOut1, idexDataOut2
-    output reg [4:0] idexRsOut, idexRtOut, idexRdOut, output reg [15:0] idexOffsetOut
+    idexMemToReg, input [2:0] idexAluOp, output reg [31:0] idexDataOut1, idexDataOut2,
+    output reg [4:0] idexRsOut, idexRtOut, idexRdOut, output reg [15:0] idexOffsetOut,
     output reg [2:0] idexAluOpOut, output reg idexRegWriteOut, idexRegDstOut,
     idexMemWriteOut, idexMemReadOut, idexAluSelOut, idexMemToRegOut);
     always @ (posedge clk, posedge rst) begin
