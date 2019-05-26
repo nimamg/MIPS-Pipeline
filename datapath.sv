@@ -17,7 +17,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // IF stage -- finished
 
     // ID wires
-   wire [31:0] regWriteData, regData1, regData2,idPCin, idInstructionIn;
+   wire [31:0] regWriteData, regData1, regData2, idPCin, idInstructionIn;
    wire [4:0] Rs, Rt, Rd;
    wire [15:0] MemoryOffset;
    wire [17:0] branchOffset;
