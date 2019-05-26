@@ -26,8 +26,29 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
    wire wbRegWriteIn;
    // ID wires -- finished
 
+   // EX wires
+   wire [31:0] exDataIn1, exDataIn2, aluInA, aluInB, aluBetweenB, aluResult;
+   wire [4:0] exRsIn, exRtIn, exRdIn, exRdOut;
+   wire [15:0] exOffsetIn;
+   wire [2:0] exAluOpIn;
+   wire exRegWriteIn, exRegDstIn, exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn;
+   // EX wires -- finished
+
+   // MEM wires
+   wire [31:0] memAluResIn, memDataIn, memDataOut;
+   wire [4:0] memRdIn;
+   wire memRegWriteIn, memMemWriteIn, memMemReadIn, memMemToRegIn;
+   // MEM wires -- finished
+
+   // WB wires
+   wire wbMemToRegIn;
+   wire [31:0] wbMemDataIn, wbAluResIn;
+
+   // WB wires -- finished
     ifidReg stage1Reg (IncPcOut, instruction, ifFlush, ifidWrite, clk, rst, idPCin, idInstructionIn); // IF/ID Reg
 
+    wire regWriteInternal, regDstInternal, memWriteInternal, memReadInternal, aluSelInternal, memToRegInternal;
+    wire [2:0] aluOpInternal;
     // ID stage
     assign jmpAdr = {idPCin[31:28], idInstructionIn[25:0], 2'b0}; // Jump address
     assign branchOffset = {idInstructionIn[15:0],2'b0}; // branch offset
@@ -37,19 +58,11 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     assign Rd = idInstructionIn[15:11];
     assign MemoryOffset = idInstructionIn[15:0];
     regFile registerFile (Rs, Rt, wbRdIn, wbRegWriteIn, clk, rst, regWriteData, regData1, regData2);
-    assign {regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp} = (controlSel == 0) ? 8'b0
+    assign {regWriteInternal, regDstInternal, memWriteInternal, memReadInternal,
+    aluSelInternal, memToRegInternal,aluOpInternal} = (controlSel == 0) ? 9'b0
      : {regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp}; // Control Signal mux
      assign equalToControl = (regData1 == regData2) ? 1'b1 : 1'b0; // branch comparator
      // ID stage -- finished
-
-     // EX wires
-     wire [31:0] exDataIn1, exDataIn2, forwardedFromMem, forwardedFromWb, aluInA, aluInB, aluBetweenB, aluResult;
-     wire [4:0] exRsIn, exRtIn, exRdIn, exRdOut;
-     wire [15:0] exOffsetIn;
-     wire [2:0] exAluOpIn;
-     wire exRegWriteIn, exRegDstIn, exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn;
-     // EX wires -- finished
-
 
      idexReg stage2Reg (clk, rst, regData1, regData2, Rs, Rt, Rd, MemoryOffset,
         regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp, exDataIn1,
@@ -58,17 +71,11 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
 
     // EX stage
     assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn; // Rd output of ex stage
-    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb : exDataIn1; // ALU A input / Forward selector
-    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb : exDataIn2; // ALU B / forward selector
-    assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn : aluBetweenB; // ALU B input / Data and offset selector
+    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? aluResult : (aSel == 2) ? regWriteData : exDataIn1; // ALU A input / Forward selector
+    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? aluResult : (bSel == 2) ? regWriteData : exDataIn2; // ALU B / forward selector
+    assign aluInB = (exAluSelIn == 0) ? aluBetweenB : (exAluSelIn == 1) ? exOffsetIn : aluBetweenB; // ALU B input / Data and offset selector
     ALU alu (aluInA, aluInB, exAluOpIn, aluResult);
     // EX stage -- finished
-
-    // MEM wires
-    wire [31:0] memAluResIn, memDataIn, memDataOut;
-    wire [4:0] memRdIn;
-    wire memRegWriteIn, memMemWriteIn, memMemReadIn, memMemToRegIn;
-    // MEM wires -- finished
 
     exmemReg stage3Reg (clk, rst, aluResult, aluBetweenB, exRdOut, exRegWriteIn,
     exMemWriteIn, exMemReadIn, exMemToRegIn, memRegWriteIn, memMemWriteIn, memMemReadIn,
@@ -77,12 +84,6 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // MEM stage
     DataMemory datamem (clk, rst, memMemWriteIn, memMemReadIn,memDataIn, memAluResIn, memDataOut);
     // MEM stage -- finished
-
-    // WB wires
-    wire wbMemToRegIn;
-    wire [31:0] wbMemDataIn, wbAluResIn;
-
-    // WB wires -- finished
 
     memwbReg stage4Reg (clk, rst, memDataOut, memAluResIn, memRdIn,
         memMemToRegIn, memRegWriteIn, wbMemToRegIn, wbRegWriteIn,
