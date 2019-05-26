@@ -4,7 +4,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     controlSel, regWrite, regDst, memWrite, memRead, aluSel, memToReg,
     input [2:0] aluOp, output equalToControl, output [4:0] idRsToHazard, idRtToHazard,
     exRtToFrwrd_Hazard, exRsToFrwrd, memRdToFrwrd, wbRdToFrwrd, output exMemReadToHazard,
-    memRegWriteToFrwrd, wbRegWriteToFrwrd, output [31:0] idInstructionIn);
+    memRegWriteToFrwrd, wbRegWriteToFrwrd, output [31:0] instToCtrl);
 
     // IF wires
     wire [31:0] pcOut, pcIn, IncPcOut, jmpAdr, branchAdr, instruction;
@@ -19,7 +19,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     ifidReg stage1Reg (IncPcOut, instruction, ifFlush, ifidWrite, clk, rst, idPCin, idInstructionIn); // IF/ID Reg
 
      // ID wires
-    wire [31:0] idPCin, regWriteData, regData1, regData2;
+    wire [31:0] idPCin, regWriteData, regData1, regData2, idInstructionIn;
     wire [4:0] Rs, Rt, Rd;
     wire [15:0] MemoryOffset;
     wire [17:0] branchOffset;
@@ -99,6 +99,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     assign exMemReadToHazard = exMemReadIn; // EX stage MemRead signal -> hazard unit
     assign memRegWriteToFrwrd = memRegWriteIn; // MEM stage RegWrite signal -> forwarding unit
     assign wbRegWriteToFrwrd = wbRegWriteIn; // WB stage RegWrite signal -> forwarding unit
+    assign instToCtrl = idInstructionIn; // ID stage Instruction input -> controller
     // output control signals --finished
 
 endmodule
