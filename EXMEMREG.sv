@@ -17,7 +17,7 @@ module exmemReg (input clk, rst, input [31:0] exmemAluResultIn, exmemMemoryDataI
             exmemMemToRegOut = exmemMemToRegIn;
             exmemAluResultOut = exmemAluResultIn;
             exmemMemoryDataOut = exmemMemoryDataIn;
-            exmemRdOut = exMemReadIn;
+            exmemRdOut = exmemRdIn;
         end
     end
 endmodule
