@@ -7,12 +7,6 @@ module imTB();
     initial begin
         instructionAddress = 0;
         #20;
-        instructionAddress = 1;
-        #20;
-        instructionAddress = 10;
-        #20;
-        instructionAddress = 60;
-        #20;
         $stop;
     end
 endmodule
