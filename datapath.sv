@@ -21,6 +21,9 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
    wire [4:0] Rs, Rt, Rd;
    wire [15:0] MemoryOffset;
    wire [17:0] branchOffset;
+        // wires used in ID stage, coming from WB stage
+   wire [4:0] wbRdIn;
+   wire wbRegWriteIn;
    // ID wires -- finished
 
     ifidReg stage1Reg (IncPcOut, instruction, ifFlush, ifidWrite, clk, rst, idPCin, idInstructionIn); // IF/ID Reg
@@ -55,9 +58,9 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
 
     // EX stage
     assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn; // Rd output of ex stage
-    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb; // ALU A input / Forward selector
-    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb; // ALU B / forward selector
-    assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn; // ALU B input / Data and offset selector
+    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? forwardedFromMem : (aSel == 2) ? forwardedFromWb : exDataIn1; // ALU A input / Forward selector
+    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? forwardedFromMem : (bSel == 2) ? forwardedFromWb : exDataIn2; // ALU B / forward selector
+    assign aluInB = (aluSel == 0) ? aluBetweenB : (aluSel == 1) ? exOffsetIn : aluBetweenB; // ALU B input / Data and offset selector
     ALU alu (aluInA, aluInB, exAluOpIn, aluResult);
     // EX stage -- finished
 
@@ -76,9 +79,9 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // MEM stage -- finished
 
     // WB wires
-    wire wbMemToRegIn, wbRegWriteIn;
+    wire wbMemToRegIn;
     wire [31:0] wbMemDataIn, wbAluResIn;
-    wire [4:0] wbRdIn;
+
     // WB wires -- finished
 
     memwbReg stage4Reg (clk, rst, memDataOut, memAluResIn, memRdIn,
