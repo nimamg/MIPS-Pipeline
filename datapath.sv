@@ -46,15 +46,16 @@ module dataPath (input clk, rst, input [1:0] pcSrcFromCtrl, aSel, bSel, input pc
 
     // IF stage
     assign IncPcOut = pcOut + 4; // PC incrementer
-    assign pcIn = (pcSrc == 0) ? IncPcOut : (pcSrc == 1) ? branchAdr : (pcSrc == 2) ? jmpAdr : IncPcOut; // PC source Mux
+    assign pcIn = (rst == 1) ? IncPcOut : (pcSrc == 0) ? IncPcOut : (pcSrc == 1) ? branchAdr :
+    (pcSrc == 2) ? jmpAdr : IncPcOut; // PC source Mux
     PC pc (clk, rst, pcWrite, pcIn, pcOut);
     instructionMemory instructionMem (pcOut, instruction);
     // IF stage -- finished
 
     // ID stage
     assign jmpAdr = {idPCin[31:28], idInstructionIn[25:0], 2'b0}; // Jump address
-    // assign branchOffset = {14'b0,idInstructionIn[15:0],2'b0}; // branch offset
-    assign branchAdr = {14'b0,idInstructionIn[15:0],2'b0} + idPCin; // branch address
+    assign branchOffset = {14'b0,idInstructionIn[15:0],2'b0}; // branch offset
+    assign branchAdr = {14'b0,idInstructionIn[15:0],2'b0} + branchOffset; // branch address
     assign Rs = idInstructionIn[25:21];
     assign Rt = idInstructionIn[20:16];
     assign Rd = idInstructionIn[15:11];
@@ -67,15 +68,16 @@ module dataPath (input clk, rst, input [1:0] pcSrcFromCtrl, aSel, bSel, input pc
      // ID stage -- finished
 
      idexReg stage2Reg (clk, rst, regData1, regData2, Rs, Rt, Rd, MemoryOffset,
-        regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp, pcSrcFromCtrl,
+     regWriteInternal, regDstInternal, memWriteInternal, memReadInternal,
+     aluSelInternal, memToRegInternal,aluOpInternal, pcSrcFromCtrl,
         exDataIn1, exDataIn2, exRsIn, exRtIn, exRdIn, exOffsetIn, exAluOpIn,
         exRegWriteIn, exRegDstIn, exMemWriteIn, exMemReadIn, exAluSelIn,
         exMemToRegIn, pcSrc); // ID/EX Reg
 
     // EX stage
     assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn; // Rd output of ex stage
-    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? aluResult : (aSel == 2) ? regWriteData : exDataIn1; // ALU A input / Forward selector
-    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? aluResult : (bSel == 2) ? regWriteData : exDataIn2; // ALU B / forward selector
+    assign aluInA = (aSel == 0) ? exDataIn1 : (aSel == 1) ? memAluResIn : (aSel == 2) ? regWriteData : exDataIn1; // ALU A input / Forward selector
+    assign aluBetweenB = (bSel == 0) ? exDataIn2 : (bSel == 1) ? memAluResIn : (bSel == 2) ? regWriteData : exDataIn2; // ALU B / forward selector
     assign aluInB = (exAluSelIn == 0) ? aluBetweenB : (exAluSelIn == 1) ? exOffsetIn : aluBetweenB; // ALU B input / Data and offset selector
     ALU alu (aluInA, aluInB, exAluOpIn, aluResult);
     // EX stage -- finished
