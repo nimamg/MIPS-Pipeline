@@ -19,6 +19,7 @@ module controller(input equal, input [31:0] instruction, output reg [1:0] pcSrc,
       end
       6'b000010: begin // jump
         pcSrc = 2;
+        IFFlush = 1;
       end
       6'b000100: begin // branchEq
         if (equal) begin

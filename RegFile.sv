@@ -6,7 +6,12 @@ module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, clk, rst, inpu
     reg [31:0] registers [0:31];
     assign readData1 = registers[adr1];
     assign readData2 = registers[adr2];
-
+    initial begin
+        #100;
+        registers[1] = 10;
+        registers[2] = 10;
+        registers[3] = 15;
+    end
     always @ (posedge clk, posedge rst) begin
         if (rst) begin
             integer i;

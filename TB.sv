@@ -6,9 +6,9 @@ module TB();
     always #10 clk = ~clk;
     initial begin
         rst = 1;
-        #200
+        #100;
         rst = 0;
         #100000
-        $stop;  
+        $stop;
     end
 endmodule

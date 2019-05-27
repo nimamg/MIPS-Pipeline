@@ -9,13 +9,6 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
     // IF wires
     wire [31:0] pcOut, pcIn, IncPcOut, jmpAdr, branchAdr, instruction;
 
-    // IF stage
-    assign IncPcOut = pcOut + 4; // PC incrementer
-    assign pcIn = (pcSrc == 0) ? IncPcOut : (pcSrc == 1) ? branchAdr : (pcSrc == 2) ? jmpAdr : IncPcOut; // PC source Mux
-    PC pc (clk, rst, pcWrite, pcIn, pcOut);
-    instructionMemory instructionMem (pcOut, instruction);
-    // IF stage -- finished
-
     // ID wires
    wire [31:0] regWriteData, regData1, regData2, idPCin, idInstructionIn;
    wire [4:0] Rs, Rt, Rd;
@@ -49,6 +42,14 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
 
     wire regWriteInternal, regDstInternal, memWriteInternal, memReadInternal, aluSelInternal, memToRegInternal;
     wire [2:0] aluOpInternal;
+
+    // IF stage
+    assign IncPcOut = pcOut + 4; // PC incrementer
+    assign pcIn = (pcSrc == 0) ? IncPcOut : (pcSrc == 1) ? branchAdr : (pcSrc == 2) ? jmpAdr : IncPcOut; // PC source Mux
+    PC pc (clk, rst, pcWrite, pcIn, pcOut);
+    instructionMemory instructionMem (pcOut, instruction);
+    // IF stage -- finished
+
     // ID stage
     assign jmpAdr = {idPCin[31:28], idInstructionIn[25:0], 2'b0}; // Jump address
     assign branchOffset = {idInstructionIn[15:0],2'b0}; // branch offset
