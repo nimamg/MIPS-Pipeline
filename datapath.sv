@@ -1,6 +1,6 @@
 `timescale 1ns / 1ns
 
-module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, ifFlush, ifidWrite,
+module dataPath (input clk, rst, input [1:0] pcSrcFromCtrl, aSel, bSel, input pcWrite, ifFlush, ifidWrite,
     controlSel, regWrite, regDst, memWrite, memRead, aluSel, memToReg,
     input [2:0] aluOp, output equalToControl, output [4:0] idRsToHazard, idRtToHazard,
     exRtToFrwrd_Hazard, exRsToFrwrd, memRdToFrwrd, wbRdToFrwrd, output exMemReadToHazard,
@@ -24,6 +24,7 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
    wire [4:0] exRsIn, exRtIn, exRdIn, exRdOut;
    wire [15:0] exOffsetIn;
    wire [2:0] exAluOpIn;
+   wire [1:0] pcSrc;
    wire exRegWriteIn, exRegDstIn, exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn;
    // EX wires -- finished
 
@@ -52,8 +53,8 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
 
     // ID stage
     assign jmpAdr = {idPCin[31:28], idInstructionIn[25:0], 2'b0}; // Jump address
-    assign branchOffset = {idInstructionIn[15:0],2'b0}; // branch offset
-    assign branchAdr = branchOffset + idPCin; // branch address
+    // assign branchOffset = {14'b0,idInstructionIn[15:0],2'b0}; // branch offset
+    assign branchAdr = {14'b0,idInstructionIn[15:0],2'b0} + idPCin; // branch address
     assign Rs = idInstructionIn[25:21];
     assign Rt = idInstructionIn[20:16];
     assign Rd = idInstructionIn[15:11];
@@ -66,9 +67,10 @@ module dataPath (input clk, rst, input [1:0] pcSrc, aSel, bSel, input pcWrite, i
      // ID stage -- finished
 
      idexReg stage2Reg (clk, rst, regData1, regData2, Rs, Rt, Rd, MemoryOffset,
-        regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp, exDataIn1,
-        exDataIn2, exRsIn, exRtIn, exRdIn, exOffsetIn, exAluOpIn, exRegWriteIn, exRegDstIn,
-        exMemWriteIn, exMemReadIn, exAluSelIn, exMemToRegIn); // ID/EX Reg
+        regWrite, regDst, memWrite, memRead, aluSel, memToReg, aluOp, pcSrcFromCtrl,
+        exDataIn1, exDataIn2, exRsIn, exRtIn, exRdIn, exOffsetIn, exAluOpIn,
+        exRegWriteIn, exRegDstIn, exMemWriteIn, exMemReadIn, exAluSelIn,
+        exMemToRegIn, pcSrc); // ID/EX Reg
 
     // EX stage
     assign exRdOut = (exRegDstIn == 1) ? exRdIn : exRtIn; // Rd output of ex stage
