@@ -7,7 +7,7 @@ module TB();
     always #10 begin
         clk = ~clk;
         if (rst) counter = 0;
-        else counter = counter + 1;
+        else if (clk) counter = counter + 1;
     end
     initial begin
         rst = 1;
