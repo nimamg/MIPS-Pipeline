@@ -46,8 +46,8 @@ module dataPath (input clk, rst, input [1:0] pcSrcFromCtrl, aSel, bSel, input pc
 
     // IF stage
     assign IncPcOut = pcOut + 4; // PC incrementer
-    assign pcIn = (rst == 1) ? IncPcOut : (pcSrc == 0) ? IncPcOut : (pcSrc == 1) ? branchAdr :
-    (pcSrc == 2) ? jmpAdr : IncPcOut; // PC source Mux
+    assign pcIn = (rst == 1) ? IncPcOut : (pcSrcFromCtrl == 0) ? IncPcOut : (pcSrcFromCtrl == 1) ? branchAdr :
+    (pcSrcFromCtrl == 2) ? jmpAdr : IncPcOut; // PC source Mux
     PC pc (clk, rst, pcWrite, pcIn, pcOut);
     instructionMemory instructionMem (pcOut, instruction);
     // IF stage -- finished
