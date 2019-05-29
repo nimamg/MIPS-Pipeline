@@ -1,11 +1,11 @@
 `timescale 1ns/1ns
 
 module forwarding(input[4:0] ExMemRd, MemWbRd, Rt, Rs, input regWrite1, regWrite2, output reg[1:0] ASel, BSel);
-    assign ASel = ((regWrite1 == 1) && (Rs == ExMemRd) && (ExMemRd != 5'b0)) ? 1 : 
-                  ((regWrite2 == 1) && (Rs == MemWbRd) && (MemWbRd != 5'b0) && (regWrite1 != 1)) ? 2 :
+    assign ASel = ((regWrite1 == 1) && (Rs == ExMemRd) && (ExMemRd != 5'b0)) ? 1 :
+                  ((regWrite2 == 1) && (Rs == MemWbRd) && (MemWbRd != 5'b0)) ? 2 :
                   0;
-    assign BSel = ((regWrite1 == 1) && (Rt == ExMemRd) && (ExMemRd != 5'b0)) ? 1 : 
-                  ((regWrite2 == 1) && (Rt == MemWbRd) && (MemWbRd != 5'b0) && (regWrite1 != 1)) ? 2 : 
+    assign BSel = ((regWrite1 == 1) && (Rt == ExMemRd) && (ExMemRd != 5'b0)) ? 1 :
+                  ((regWrite2 == 1) && (Rt == MemWbRd) && (MemWbRd != 5'b0)) ? 2 :
                   0;
     // assign ASel = (regWrite2 == 1 && Rs == MemWbRd && MemWbRd != 5'b0 && regWrite1 != 1) ? 2 : 0;
     // assign BSel = (regWrite2 == 1 && Rt == MemWbRd && MemWbRd != 5'b0 && regWrite1 != 1) ? 2 : 0;
