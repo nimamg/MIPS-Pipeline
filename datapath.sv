@@ -54,8 +54,8 @@ module dataPath (input clk, rst, input [1:0] pcSrcFromCtrl, aSel, bSel, input pc
 
     // ID stage
     assign jmpAdr = {idPCin[31:28], idInstructionIn[25:0], 2'b0}; // Jump address
-    assign branchOffset = {14'b0,idInstructionIn[15:0],2'b0}; // branch offset
-    assign branchAdr = {14'b0,idInstructionIn[15:0],2'b0} + branchOffset; // branch address
+    assign branchOffset = {idInstructionIn[15:0],2'b0}; // branch offset
+    assign branchAdr = idPCin + branchOffset; // branch address
     assign Rs = idInstructionIn[25:21];
     assign Rt = idInstructionIn[20:16];
     assign Rd = idInstructionIn[15:11];

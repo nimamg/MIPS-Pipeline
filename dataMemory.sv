@@ -16,7 +16,7 @@ module DataMemory (input clk, rst, memWrite, memRead, input [31:0] writeData, ad
     assign readData = (memRead == 1) ? memory[address] : readData;
     initial begin
         #100;
-        memory[0] = 10;
+        memory[0] = 25;
         memory[1] = 15;
     end
 endmodule

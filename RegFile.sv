@@ -10,7 +10,7 @@ module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, clk, rst, inpu
         #100;
         registers[1] = 10;
         registers[2] = 10;
-        registers[3] = 15;
+        // registers[3] = 15;
     end
     always @ (posedge clk, posedge rst) begin
         if (rst) begin
