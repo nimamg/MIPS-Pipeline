@@ -42,7 +42,7 @@ module controller(input equal, input [31:0] instruction, output reg [1:0] pcSrc,
       6'b000000: begin //Rtype
         regDst = 1;
         regWrite = 1;
-        if (func == 6'b100001) begin // add
+        if (func == 6'b100000) begin // add
             aluOp = 0;
         end
         else if (func == 6'b100011) begin //sub
