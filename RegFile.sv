@@ -11,7 +11,7 @@ module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, clk, rst, inpu
         // registers[1] = 10;
         // registers[2] = 10;
         // registers[3] = 15;
-        registers[8] = 80;
+        // registers[8] = 80;
     end
     always @ (negedge clk, posedge rst) begin
         if (rst) begin
@@ -21,7 +21,9 @@ module regFile (input [4:0] adr1, adr2, writeAdr, input regWrite, clk, rst, inpu
             end
         end
         else if (regWrite) begin
-            registers[writeAdr] = writeData;
+            if (writeAdr != 0) begin
+                registers[writeAdr] = writeData;
+            end
         end
     end
 endmodule
